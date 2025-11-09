@@ -1,14 +1,98 @@
 import random
 
-DEFAULT_NOUNS = [
-    "Tabelle", "Fenster", "Regen", "Wolken", "Server",
-    "Adresse", "Muster", "System", "Konsole", "Prozess",
-    "Laptop", "Netzwerk", "Kamera", "Ordner", "Schalter",
+def load_words_from_file(filename):
+    """Liest eine Wortliste aus einer Textdatei ein (ein Wort pro Zeile)."""
+    try:
+        with open(filename, "r", encoding="utf-8") as file:
+            words = [line.strip() for line in file if line.strip()]
+        return words
+    except FileNotFoundError:
+        raise RuntimeError(f"Datei '{filename}' wurde nicht gefunden.")
+
+DEFAULT_NOUNS = load_words_from_file("farm_vocabulary.txt")
+
+HANGMAN_PICS = [
+    # 0 Fehler – komplett leer
+    """
+    
+    
+    
+    
+    
+    
+    """,
+    # 1 Fehler – nur Boden
+    """
+          
+          
+          
+          
+        =====
+    """,
+    # 2 Fehler – kompletter Galgen, noch ohne Figur
+    """
+      +---+
+      |   |
+          |
+          |
+        =====
+    """,
+    # 3 Fehler – Kopf
+    """
+      +---+
+      |   |
+      O   |
+          |
+        =====
+    """,
+    # 4 Fehler – Körper
+    """
+      +---+
+      |   |
+      O   |
+      |   |
+        =====
+    """,
+    # 5 Fehler – ein Arm
+    """
+      +---+
+      |   |
+      O   |
+     /|   |
+        =====
+    """,
+    # 6 Fehler – beide Arme
+    """
+      +---+
+      |   |
+      O   |
+     /|\\  |
+        =====
+    """,
+    # 7 Fehler – beide Arme + ein Bein
+    """
+      +---+
+      |   |
+      O   |
+     /|\\  |
+     /     |
+        =====
+    """,
+    # 8 Fehler – beide Arme + beide Beine (Game Over)
+    """
+      +---+
+      |   |
+      O   |
+     /|\\  |
+     / \\  |
+        =====
+    """
 ]
 
 
+
 class PoolOfWords:
-    """Verwaltet Nomen und liefert ein zufälliges, noch unbenutztes Wort (5–10 Zeichen)."""
+    """Verwaltet Nomen und liefert ein zufälliges, noch unbenutztes Wort (3–10 Zeichen)."""
 
     def __init__(self, nouns):
         self._all_nouns = [w.lower() for w in nouns]
@@ -17,7 +101,7 @@ class PoolOfWords:
     def next_word(self):
         candidates = [
             w for w in self._all_nouns
-            if w.isalpha() and 5 <= len(w) <= 10 and w not in self._used
+            if w.isalpha() and 3 <= len(w) <= 10 and w not in self._used
         ]
         if not candidates:
             raise RuntimeError("Keine geeigneten neuen Wörter mehr verfügbar.")
@@ -76,6 +160,10 @@ class HangmanRound:
         """ Gibt den aktuellen Fortschritt zurück, z.B. '_ _ r _ _'."""
         return " ".join(c if c in self.tried_letters else "_" for c in self.secret)
 
+def display_hangman(wrong_attempts):
+    """Zeigt den aktuellen ASCII-Galgen für die Fehlversuche."""
+    print(HANGMAN_PICS[wrong_attempts])
+
 
 class Game:
     """Kontrolliert den Ablauf des Spiels."""
@@ -111,6 +199,7 @@ class Game:
                         print("Wrong word.")
 
                 """ Fortschritt anzeigen und Bedingungen prüfen """
+                display_hangman(game.wrong_attempts)
                 print("Current progress:", game.progress_mask())
                 print("Attempts used:", game.wrong_attempts, "/", game.MAX_ATTEMPTS)
 
@@ -140,6 +229,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
 
