@@ -25,23 +25,24 @@ class PoolOfWords:
         self._used.add(choice)
         return choice
 
+    """used_words wie ein Attribut nutzbar, aber nur lesbar"""
     @property
     def used_words(self):
         return sorted(self._used)
 
 
-class Hangman:
-    """Manages the state of a Hangman game."""
+class HangmanRound:
+    """Verwaltet den Zustand einer einzelnen Hangman-Runde."""
     MAX_ATTEMPTS = 8
 
     def __init__(self, secret):
-        """Initializes the game with a secret word."""
+        """Initialisiert das Spiel mit dem geheimen Wort."""
         self.secret = secret.lower()
         self.tried_letters = set()
         self.wrong_attempts = 0
 
     def try_letter(self, letter):
-        """Processes a single-letter attempt and returns True if it is in the secret word."""
+        """Verarbeitet einen einzelnen Buchstabenversuch und gibt True zurück, wenn er im geheimen Wort enthalten."""
         letter = letter.lower()
 
         if len(letter) != 1 or not letter.isalpha():
@@ -59,7 +60,7 @@ class Hangman:
             return False
 
     def guess_word(self, attempt):
-        """Processes a full-word guess and returns True if it matches the secret word."""
+        """Verarbeitet einen Versuch und gibt True zurück, wenn er mit dem geheimen Wort übereinstimmt."""
         attempt = attempt.lower()
 
         if not attempt.isalpha():
@@ -72,30 +73,29 @@ class Hangman:
             return False
 
     def progress_mask(self):
-        """Returns the current progress, e.g. '_ _ r _ _'."""
+        """ Gibt den aktuellen Fortschritt zurück, z.B. '_ _ r _ _'."""
         return " ".join(c if c in self.tried_letters else "_" for c in self.secret)
 
 
 class Game:
-    """Controls the flow of the Hangman game."""
+    """Kontrolliert den Ablauf des Spiels."""
     def __init__(self, word_pool):
-        """Takes a PoolOfWords instance."""
+        """Nimmt eine PoolOfWords-Instanz entgegen."""
         self.word_pool = word_pool
 
     def play_one_round(self):
-        """Runs one complete round of Hangman."""
+        """Eine komplette Runde Hangman spielen."""
         secret = self.word_pool.next_word()
-        game = Hangman(secret)
+        game = HangmanRound(secret)
 
         print(f"\nThe secret word has {len(secret)} letters.")
         print(game.progress_mask())
 
         while True:
-            # Ask for user input
             user_input = input("\nEnter a letter or try the whole word: ").strip()
 
             try:
-                # Single-letter attempt
+                """ Einzelbuchstabe oder ganzes Wort? """
                 if len(user_input) == 1:
                     hit = game.try_letter(user_input)
                     if hit:
@@ -103,7 +103,6 @@ class Game:
                     else:
                         print("Wrong.")
                 else:
-                    # Whole-word attempt
                     correct = game.guess_word(user_input)
                     if correct:
                         print(f"\nYou won! The word was '{game.secret}'.")
@@ -111,11 +110,10 @@ class Game:
                     else:
                         print("Wrong word.")
 
-                # Show progress
+                """ Fortschritt anzeigen und Bedingungen prüfen """
                 print("Current progress:", game.progress_mask())
                 print("Attempts used:", game.wrong_attempts, "/", game.MAX_ATTEMPTS)
 
-                # Check for end conditions
                 if game.wrong_attempts >= game.MAX_ATTEMPTS:
                     print(f"\nGame over. The word was '{game.secret}'.")
                     break
