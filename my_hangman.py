@@ -169,6 +169,7 @@ def display_hangman(wrong_attempts):
     print(HANGMAN_PICS[wrong_attempts])
 
 
+# pylint: disable=too-few-public-methods
 class Game:
     """Kontrolliert den Ablauf des Spiels."""
 
