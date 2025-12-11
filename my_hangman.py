@@ -1,6 +1,6 @@
 import random
 
-def load_words_from_file(filename):
+def load_words_from_file(filename):  
     """Liest eine Wortliste aus einer Textdatei ein (ein Wort pro Zeile)."""
     try:
         with open(filename, "r", encoding="utf-8") as file:
