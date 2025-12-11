@@ -21,7 +21,7 @@ HANGMAN_PICS = [
     
     
     """,
-    # 1 Fehler – nur Boden
+    # 1 Fehler – nur der Boden wird gezeichnet
     """
           
           
